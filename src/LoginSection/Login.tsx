@@ -2,6 +2,7 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
+import {SignInRequest} from './LoginAPI'
 
 
 class Login extends React.Component<{}, MyState> {
@@ -14,15 +15,22 @@ class Login extends React.Component<{}, MyState> {
 
     onSuccess = (googleUser: googleUserObject) => {
         var profile = googleUser.getBasicProfile();
+        SignInRequest(googleUser.getAuthResponse().id_token).then(()=>{
+            this.setState({
+                isLoggedIn:true,
+                profileImage:profile.getImageUrl(),
+                userName: profile.getName()
+            })
+        });
+
         console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
         console.log('Name: ' + profile.getName());
         console.log('Image URL: ' + profile.getImageUrl());
         console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-        this.setState({
-            isLoggedIn:true,
-            profileImage:profile.getImageUrl(),
-            userName: profile.getName()
-        })
+        console.log(googleUser.getAuthResponse().id_token)
+        
+
+        //Need to send the request to backend. Wait for 201 or 200.
     }
 
     signOut = () => {
@@ -90,6 +98,7 @@ interface MyState {
 };
 type googleUserObject = {
     getBasicProfile: any;
+    getAuthResponse: any;
 }
 declare global {
     interface Window {
